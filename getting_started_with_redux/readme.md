@@ -3,6 +3,15 @@ Notes from the course on Egghead.io by Dan Abramov.
 
 https://egghead.io/courses/getting-started-with-redux
 
+## Instructions for the example code
+Run this in your terminal:
+
+```
+npm run build
+```
+
+And open the `index.html` file.
+
 ## Intro
 State is saved in an object.
 
@@ -200,7 +209,7 @@ user choose which todos are visible: completed, incompleted, etc. We can just
 create another reducer that wraps our `todos` reducer, and wrap our `todos`
 array in an object that will hold all the state:
 
-    const visibilityfilter = (
+    const visibilityFilter = (
       state = 'SHOW_ALL',
       action
     ) => {
@@ -311,3 +320,188 @@ the view layer with React:
 
     store.subscribe(render);
     render();
+
+## Todos: toggling a todo
+Now we want to toggle a todo. We need to edit the `li` element in our React
+code:
+
+    <li key={todo.id}
+        onClick={() => {
+          store.dispatch({
+            type: 'TOGGLE_TODO',
+            id: todo.id
+          });
+        }}
+        style={{
+          textDecoration:
+            todo.completed ?
+              'line-through' :
+              'none'
+        }}>
+      {todo.text}
+    </li>
+
+## Todos: Filtering todos
+First we need a component to switch between filters:
+
+    const FilterLink = ({
+      filter,
+      children
+    }) => {
+      return (
+        <a href="#"
+          onClick={e => {
+            e.preventDefault();
+            store.dispatch({
+              type: 'SET_VISIBILITY_FILTER',
+              filter
+            });
+          }}
+        >
+          {children}
+        </a>
+      );
+    };
+
+Then, in our `TodoApp` component, beneath the `ul` element, we show the
+filters:
+
+    </ul>
+    <p>
+      Show:
+      {' '}
+      <FilterLink
+        filter='SHOW_ALL'
+      >
+        All
+      </FilterLink>
+      {' '}
+      <FilterLink
+        filter='SHOW_ACTIVE'
+      >
+        Active
+      </FilterLink>
+      {' '}
+      <FilterLink
+        filter='SHOW_COMPLETED'
+      >
+        Completed
+      </FilterLink>
+    </p>
+
+And we need a way to get the todos by the current active filter:
+
+    const getVisibleTodos = (
+      todos,
+      filter
+    ) => {
+      switch (filter) {
+        case 'SHOW_ALL':
+          return todos;
+        case 'SHOW_COMPLETED';
+          return todos.filter(
+            t => t.completed
+          );
+        case 'SHOW_ACTIVE';
+          return todos.filter(
+            t => !t.completed
+          );
+      }
+    };
+
+Then we need to use this function in our `render` method:
+
+    render() {
+      const visibleTodos = getVisibleTodos(
+        this.props.todos,
+        this.props.visibilityFilter
+      );
+
+      ...
+
+      </button>
+      <ul>
+        {visibleTodos.map( // we need to use the const
+        )}
+    }
+
+And we need to pass the filter as a prop to the `TodoApp` component:
+
+    const render = () => {
+      ReactDOM.render(
+        <TodoApp
+          {...store.getState()}
+        />,
+        document.getElementById('root')
+      );
+    };
+
+And it works! See the working example! But we don't actually have any feedback
+on which filter is active, so let's add this. First of all, we deconstruct the
+props in the `render` method:
+
+    render() {
+      const {
+        todos,
+        visibilityfilter
+      } = this.props;
+      const visibleTodos = getVisibleTodos(
+        todos,
+        visibilityFilter
+      );
+
+Then we pass the `visibilityFilter` to each `FilterLink` element, so that we
+can style them if it's the active one:
+
+
+    <p>
+      Show:
+      {' '}
+      <FilterLink
+        filter='SHOW_ALL'
+        currentFilter={visibilityFilter}
+      >
+        All
+      </FilterLink>
+      {' '}
+      <FilterLink
+        filter='SHOW_ACTIVE'
+        currentFilter={visibilityFilter}
+      >
+        Active
+      </FilterLink>
+      {' '}
+      <FilterLink
+        filter='SHOW_COMPLETED'
+        currentFilter={visibilityFilter}
+      >
+        Completed
+      </FilterLink>
+    </p>
+
+And finally, we update the definition of the `FilterLink` element:
+
+
+    const FilterLink = ({
+      filter,
+      currentFilter,
+      children
+    }) => {
+      if (filter === currentFilter) {
+        return <span>{children}</span>;
+      }
+
+      return (
+        <a href="#"
+          onClick={e => {
+            e.preventDefault();
+            store.dispatch({
+              type: 'SET_VISIBILITY_FILTER',
+              filter
+            });
+          }}
+        >
+          {children}
+        </a>
+      );
+    };

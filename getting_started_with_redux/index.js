@@ -1,14 +1,6 @@
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -101,61 +93,22 @@ var Link = function Link(_ref) {
   );
 };
 
-var FilterLink = function (_Component) {
-  _inherits(FilterLink, _Component);
-
-  function FilterLink() {
-    _classCallCheck(this, FilterLink);
-
-    return _possibleConstructorReturn(this, Object.getPrototypeOf(FilterLink).apply(this, arguments));
-  }
-
-  _createClass(FilterLink, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      var _this2 = this;
-
-      var store = this.context.store;
-
-      this.unsubscribe = store.subscribe(function () {
-        return _this2.forceUpdate();
+var mapStateToLinkProps = function mapStateToLinkProps(state, ownProps) {
+  return {
+    active: ownProps.filter === state.visibilityFilter
+  };
+};
+var mapDispatchToLinkProps = function mapDispatchToLinkProps(dispatch, ownProps) {
+  return {
+    onClick: function onClick() {
+      dispatch({
+        type: 'SET_VISIBILITY_FILTER',
+        filter: ownProps.filter
       });
     }
-  }, {
-    key: 'componentWillUnmount',
-    value: function componentWillUnmount() {
-      this.unsubscribe();
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var props = this.props;
-      var store = this.context.store;
-
-      var state = store.getState();
-
-      return React.createElement(
-        Link,
-        {
-          active: props.filter === state.visibilityFilter,
-          onClick: function onClick() {
-            return store.dispatch({
-              type: 'SET_VISIBILITY_FILTER',
-              filter: props.filter
-            });
-          }
-        },
-        props.children
-      );
-    }
-  }]);
-
-  return FilterLink;
-}(Component);
-
-FilterLink.contextTypes = {
-  store: React.PropTypes.object
+  };
 };
+var FilterLink = connect(mapStateToLinkProps, mapDispatchToLinkProps)(Link);
 
 var Footer = function Footer() {
   return React.createElement(

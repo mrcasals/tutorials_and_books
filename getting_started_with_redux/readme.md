@@ -978,3 +978,27 @@ Now we can do the same from the previous lesson, but applying it to the
     // we don't do anything with the dispatch, so we pass `null` too
     // `connect(null, null) === connect()`
     AddTodo = connect()(AddTodo);
+
+## Todos: Generate containers with `connect` from ReactRedux (FilterLink)
+Now we'll refactor the `FilterLink` component. We need to write both functions,
+which need access to `props`:
+
+    const mapStateToLinkProps = (state, ownProps) => {
+      return {
+        active: ownProps.filter === state.visibilityFilter
+      };
+    };
+    const mapDispatchToLinkProps = (dispatch, ownProps) => {
+      return {
+        onClick: ()=> {
+          store.dispatch({
+            type: 'SET_VISIBILITY_FILTER',
+            filter: ownProps.filter
+          })
+        }
+      };
+    };
+    const FilterLink = connect(
+      mapStateToLinkProps,
+      mapDispatchToLinkProps,
+    )(Link);

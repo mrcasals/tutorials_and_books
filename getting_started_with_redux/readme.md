@@ -920,3 +920,45 @@ Otherwise, the component will not receive it.
 Import the JS library in your HTML and use this:
 
     const { Provider } = ReactRedux;
+
+## Todos: Generate containers with `connect` from ReactRedux (VisibleTodoList)
+Our current `VisibleTodoList` component is part of a pattern of components that
+only set the behavior of a single presentational component. It sets some props
+and callbacks and delegates them to the presentational component `TodoList`.
+This is part of a pattern and can be extracted, so let's do it!
+
+We need to things now: an object that defines the props for the presentational
+component, and another one that defines its callbacks:
+
+    // It receives automaticalle the state from the `store`
+    const mapStateToProps = (state) => {
+      return {
+        todos: getVisibleTodos(
+          state.todos,
+          state.visibilityFilter
+        )
+      };
+    };
+
+    // It receives automatically the `dispatch()` from the store
+    const mapDispatchToProps = (dispatch) => {
+      return {
+        onTodoClick: (id) => {
+          dispatch({
+            type: 'TOGGLE_TODO',
+            id
+          })
+        }
+      };
+    };
+
+Now we can generate automatically the same `VisibleTodoList` just using the
+`connect()` method from React Redux:
+
+    const { connect } = ReactRedux;
+    const VisibleTodoList = connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(TodoList);
+
+It will automatically subscribe to our store.

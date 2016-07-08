@@ -481,7 +481,6 @@ can style them if it's the active one:
 
 And finally, we update the definition of the `FilterLink` element:
 
-
     const FilterLink = ({
       filter,
       currentFilter,
@@ -562,3 +561,104 @@ call to our new `TodoList` component:
           id
         })
       } />
+
+## Todos: Extract more presentational components (AddTodo, Footer, FilterLink)
+We start extracting the `AddTodo` component:
+
+    const AddTodo = ({
+      onAddCLick
+    }) => {
+      let input;
+
+      return (
+        <div>
+          <input ref={node =>
+            input = node
+          } />
+          <button onClick={() => {
+            onAddClick(input.value);
+            input.value = '';
+          }}>
+            Add button
+          </button>
+        </div>
+      );
+    };
+
+    <AddTodo
+      onAddClick={text =>
+        store.dispatch({
+          type: 'ADD_TODO',
+          id: nextTodoId++,
+          text
+        })
+      }
+    />
+
+Next is the `Footer`, that contains all the filters. On the `FilterLink`, we
+replace the `store.dispatch` call by a call to a function passed in the props:
+
+    const FilterLink = ({
+      filter,
+      currentFilter,
+      children,
+      onClick
+    }) => {
+      if (filter === currentFilter) {
+        return <span>{children}</span>;
+      }
+
+      return (
+        <a href="#"
+          onClick={onClick(filter)}
+        >
+          {children}
+        </a>
+      );
+    };
+
+    const Footer = ({
+      visibilityFilter,
+      onFilterClick
+    }) => {
+      <p>
+        Show:
+        {' '}
+        <FilterLink
+          filter='SHOW_ALL'
+          currentFilter={visibilityFilter}
+          onClick={onFilterClick}
+        >
+          All
+        </FilterLink>
+        {' '}
+        <FilterLink
+          filter='SHOW_ACTIVE'
+          currentFilter={visibilityFilter}
+          onClick={onFilterClick}
+        >
+          Active
+        </FilterLink>
+        {' '}
+        <FilterLink
+          filter='SHOW_COMPLETED'
+          currentFilter={visibilityFilter}
+          onClick={onFilterClick}
+        >
+          Completed
+        </FilterLink>
+      </p>
+    };
+
+    <Footer
+      visibilityFilter={visibilityFilter}
+      onFilterClick={ filter =>
+        store.dispatch({
+          type: 'SET_VISIBILITY_FILTER',
+          filter
+        })
+      }
+    />
+
+Finally, we can refactor our `TodoApp` component into a function component, as
+it will be easier to read.

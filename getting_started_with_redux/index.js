@@ -105,6 +105,38 @@ var FilterLink = function FilterLink(_ref) {
   );
 };
 
+var Todo = function Todo(_ref2) {
+  var onClick = _ref2.onClick;
+  var completed = _ref2.completed;
+  var text = _ref2.text;
+  return React.createElement(
+    'li',
+    { onClick: onClick,
+      style: {
+        textDecoration: completed ? 'line-through' : 'none'
+      } },
+    text
+  );
+};
+
+var TodoList = function TodoList(_ref3) {
+  var todos = _ref3.todos;
+  var onTodoClick = _ref3.onTodoClick;
+  return React.createElement(
+    'ul',
+    null,
+    todos.map(function (todo) {
+      return React.createElement(Todo, _extends({
+        key: todo.id
+      }, todo, {
+        onClick: function onClick() {
+          return onTodoClick(todo.id);
+        }
+      }));
+    })
+  );
+};
+
 var getVisibleTodos = function getVisibleTodos(todos, filter) {
   switch (filter) {
     case 'SHOW_ALL':
@@ -160,26 +192,14 @@ var TodoApp = function (_Component) {
             } },
           'Add button'
         ),
-        React.createElement(
-          'ul',
-          null,
-          visibleTodos.map(function (todo) {
-            return React.createElement(
-              'li',
-              { key: todo.id,
-                onClick: function onClick() {
-                  store.dispatch({
-                    type: 'TOGGLE_TODO',
-                    id: todo.id
-                  });
-                },
-                style: {
-                  textDecoration: todo.completed ? 'line-through' : 'none'
-                } },
-              todo.text
-            );
-          })
-        ),
+        React.createElement(TodoList, {
+          todos: visibleTodos,
+          onTodoClick: function onTodoClick(id) {
+            return store.dispatch({
+              type: 'TOGGLE_TODO',
+              id: id
+            });
+          } }),
         React.createElement(
           'p',
           null,

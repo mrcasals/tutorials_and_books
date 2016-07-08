@@ -505,3 +505,60 @@ And finally, we update the definition of the `FilterLink` element:
         </a>
       );
     };
+
+## Todos: Extracting presentational Components (Todo, TodoList)
+We declare the `Todo` component as a function:
+
+    const Todo = ({
+      onClick,
+      completed,
+      text
+    }) => (
+      <li onClick={onClick}
+          style={{
+            textDecoration:
+              completed ?
+                'line-through' :
+                'none'
+          }}>
+        {text}
+      </li>
+    );
+
+We have removed the `key` attribute, as it's only used in array rendering.
+Also, we remove any behavior from the component, so that it can be specified by
+an upper level and this we we have a **presentational component**: a component
+that only cares about styles. We do something similar with a `TodoList`
+component:
+
+    const TodoList = ({
+      todos,
+      onTodoClick
+    }) => (
+      <ul>
+        {todos.map(todo =>
+          <Todo
+            key={todo.id}
+            {...todo}
+            onClick={() => onTodoClick(todo.id)}
+          />
+        )}
+      </ul>
+    );
+
+Now we have two presentational components, but we need one that actually
+specifies the behavior. This one is called a **container component** to pass
+the data from the store. In this case, the top level `TodoApp` component acts
+as a container component.
+
+Finally, we need to replace the `ul` form the `TodoApp` `render` method with a
+call to our new `TodoList` component:
+
+    <TodoList
+      todos={visibleTodos}
+      onTodoClick={id =>
+        store.dispatch({
+          type: 'TOGGLE_TODO',
+          id
+        })
+      } />

@@ -1,0 +1,20 @@
+{
+  "name": "getting_started_with_redux",
+  "version": "1.0.0",
+  "description": "Notes from the course on Egghead.io by Dan Abramov.",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel -w src -d ."
+  },
+  "dependencies": {
+    "babel-core": "^6.7.2",
+    "babel-preset-es2015": "^6.1.2",
+    "babel-preset-react": "^6.1.2",
+    "babel-preset-stage-2": "^6.1.2"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.10.1"
+  }
+}

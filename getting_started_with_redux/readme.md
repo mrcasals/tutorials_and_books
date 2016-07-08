@@ -662,3 +662,100 @@ replace the `store.dispatch` call by a call to a function passed in the props:
 
 Finally, we can refactor our `TodoApp` component into a function component, as
 it will be easier to read.
+
+## Todos: Extract container components (FilterLink)
+See the `FilterLink` component. It need the `currentFilter` in order to style
+itself. This means the `Footer` need to know the `visibilityFilter`, so that it
+can send it to its children. The same happens with the `onFilterClick`
+property. This breaks encapsulation, so we will refactor the `Footer`
+component.
+
+    const Footer = () => {
+      <p>
+        Show:
+        {' '}
+        <FilterLink
+          filter='SHOW_ALL'
+        >
+          All
+        </FilterLink>
+        {' '}
+        <FilterLink
+          filter='SHOW_ACTIVE'
+        >
+          Active
+        </FilterLink>
+        {' '}
+        <FilterLink
+          filter='SHOW_COMPLETED'
+        >
+          Completed
+        </FilterLink>
+      </p>
+    };
+
+    <Footer />
+
+Looking at the `FilterLink`, we see that it is still bound to the behavior, so
+we change it to:
+
+    const Link = ({
+      active,
+      children,
+      onClick
+    }) => {
+      if (active) {
+        return <span>{children}</span>;
+      }
+
+      return (
+        <a
+          href="#"
+          onClick={e => {
+            e.preventDefault();
+            onClick();
+          }}
+        >
+          {children}
+        </a>
+      );
+    };
+
+    class FilterLink extends Component {
+      componentDidMount() {
+        this.unsubscribe = store.subscribe(() =>
+          this.forceUpdate()
+        )
+      }
+
+      componentWillUnmount() {
+        this.unsubscribe()
+      }
+
+      render() {
+        const props = this.props;
+        const state = store.getState();
+
+        return (
+        <Link
+          active={
+            props.filter ===
+            state.visibilityFilter
+          }
+          onClick={() =>
+            store.dispatch({
+              type: 'SET_VISIBILITY_FILTER',
+              filter: props.filter
+            })
+          }
+        >
+          {props.children}
+        </Link>
+        )
+      }
+    }
+
+This `Link` does not know anything about the behavior, it only renders the link
+depending on whether it is active or not. `FilterLink` will subscribe to the
+`store` and calculate the props and actions needed by the `Link` component to
+work properly.

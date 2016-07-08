@@ -1,6 +1,14 @@
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -69,13 +77,12 @@ var _React = React;
 var Component = _React.Component;
 
 
-var FilterLink = function FilterLink(_ref) {
-  var filter = _ref.filter;
-  var currentFilter = _ref.currentFilter;
+var Link = function Link(_ref) {
+  var active = _ref.active;
   var children = _ref.children;
   var _onClick = _ref.onClick;
 
-  if (filter === currentFilter) {
+  if (active) {
     return React.createElement(
       'span',
       null,
@@ -85,19 +92,66 @@ var FilterLink = function FilterLink(_ref) {
 
   return React.createElement(
     'a',
-    { href: '#',
+    {
+      href: '#',
       onClick: function onClick(e) {
         e.preventDefault();
-        _onClick(filter);
+        _onClick();
       }
     },
     children
   );
 };
 
-var Footer = function Footer(_ref2) {
-  var visibilityFilter = _ref2.visibilityFilter;
-  var onFilterClick = _ref2.onFilterClick;
+var FilterLink = function (_Component) {
+  _inherits(FilterLink, _Component);
+
+  function FilterLink() {
+    _classCallCheck(this, FilterLink);
+
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(FilterLink).apply(this, arguments));
+  }
+
+  _createClass(FilterLink, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      this.unsubscribe = store.subscribe(function () {
+        return _this2.forceUpdate();
+      });
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      this.unsubscribe();
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var props = this.props;
+      var state = store.getState();
+
+      return React.createElement(
+        Link,
+        {
+          active: props.filter === state.visibilityFilter,
+          onClick: function onClick() {
+            return store.dispatch({
+              type: 'SET_VISIBILITY_FILTER',
+              filter: props.filter
+            });
+          }
+        },
+        props.children
+      );
+    }
+  }]);
+
+  return FilterLink;
+}(Component);
+
+var Footer = function Footer() {
   return React.createElement(
     'p',
     null,
@@ -106,9 +160,7 @@ var Footer = function Footer(_ref2) {
     React.createElement(
       FilterLink,
       {
-        filter: 'SHOW_ALL',
-        currentFilter: visibilityFilter,
-        onClick: onFilterClick
+        filter: 'SHOW_ALL'
       },
       'All'
     ),
@@ -116,9 +168,7 @@ var Footer = function Footer(_ref2) {
     React.createElement(
       FilterLink,
       {
-        filter: 'SHOW_ACTIVE',
-        currentFilter: visibilityFilter,
-        onClick: onFilterClick
+        filter: 'SHOW_ACTIVE'
       },
       'Active'
     ),
@@ -126,19 +176,17 @@ var Footer = function Footer(_ref2) {
     React.createElement(
       FilterLink,
       {
-        filter: 'SHOW_COMPLETED',
-        currentFilter: visibilityFilter,
-        onClick: onFilterClick
+        filter: 'SHOW_COMPLETED'
       },
       'Completed'
     )
   );
 };
 
-var Todo = function Todo(_ref3) {
-  var onClick = _ref3.onClick;
-  var completed = _ref3.completed;
-  var text = _ref3.text;
+var Todo = function Todo(_ref2) {
+  var onClick = _ref2.onClick;
+  var completed = _ref2.completed;
+  var text = _ref2.text;
   return React.createElement(
     'li',
     { onClick: onClick,
@@ -149,9 +197,9 @@ var Todo = function Todo(_ref3) {
   );
 };
 
-var TodoList = function TodoList(_ref4) {
-  var todos = _ref4.todos;
-  var onTodoClick = _ref4.onTodoClick;
+var TodoList = function TodoList(_ref3) {
+  var todos = _ref3.todos;
+  var onTodoClick = _ref3.onTodoClick;
   return React.createElement(
     'ul',
     null,
@@ -167,8 +215,8 @@ var TodoList = function TodoList(_ref4) {
   );
 };
 
-var AddTodo = function AddTodo(_ref5) {
-  var onAddClick = _ref5.onAddClick;
+var AddTodo = function AddTodo(_ref4) {
+  var onAddClick = _ref4.onAddClick;
 
   var input = void 0;
 
@@ -205,9 +253,9 @@ var getVisibleTodos = function getVisibleTodos(todos, filter) {
 };
 
 var nextTodoId = 0;
-var TodoApp = function TodoApp(_ref6) {
-  var todos = _ref6.todos;
-  var visibilityFilter = _ref6.visibilityFilter;
+var TodoApp = function TodoApp(_ref5) {
+  var todos = _ref5.todos;
+  var visibilityFilter = _ref5.visibilityFilter;
   return React.createElement(
     'div',
     null,
@@ -228,15 +276,7 @@ var TodoApp = function TodoApp(_ref6) {
           id: id
         });
       } }),
-    React.createElement(Footer, {
-      visibilityFilter: visibilityFilter,
-      onFilterClick: function onFilterClick(filter) {
-        return store.dispatch({
-          type: 'SET_VISIBILITY_FILTER',
-          filter: filter
-        });
-      }
-    })
+    React.createElement(Footer, null)
   );
 };
 

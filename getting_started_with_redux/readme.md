@@ -848,3 +848,70 @@ children do, and they do it automatically now):
       <TodoApp />,
       document.getElementById('root')
     );
+
+## Todos: Passing the store down explicitly via props
+We are currently relying in a global variable `store`, but this does not scale
+in real world applications with multiple files. Also, it makes components hard
+to test. A way to solve this could be passing down the store ecplicitly via
+props to every container component and read it from the props, but this is
+inconvenient as we need to modify every compoentnt in our code. This would look
+like this:
+
+    const TodoApp = ({ store }) => (
+      <div>
+        <AddTodo store={store} />
+        <VisibleTodoList store={store} />
+        <Footer store={store} />
+      </div>
+    );
+
+    ReactDOM.render(
+      <TodoApp store={createStore(todoApp)} />,
+      document.getElementById('root')
+    );
+
+## Todos: Passing the store down implicitly via context
+We start writing a `Provider` component that will just render its children:
+
+    class Provider extends Component {
+      getChildContext() {
+        return {
+          store: this.props.store
+        }
+      }
+
+      render() {
+        return this.props.children;
+      }
+    }
+    Provider.childContextTypes = {
+      store: React.PropTypes.object
+    };
+
+    ReactDOM.render(
+      <Provider store={createStore(todoApp)}>
+        <TodoApp />
+      </Provider>,
+      document.getElementById('root')
+    );
+
+We need to specify the `Provider.childContextTypes` part, otherwise it won't be
+passed to the component children.
+
+Now we need to change how our get the store. Instead of getting it from the
+props, they will be getting it from the React context:
+
+    // For class components
+    const { store } = this.context;
+
+    // For function components
+    const AddTodo = (props, { store }) => {
+      ...
+    }
+
+Also, for each component that receives the store we need to specify it.
+Otherwise, the component will not receive it.
+
+    VisibleTodoList.contextTypes = {
+      store: React.PropTypes.object
+    };

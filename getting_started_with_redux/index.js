@@ -71,8 +71,6 @@ var todoApp = combineReducers({
   visibilityFilter: visibilityFilter
 });
 
-var store = createStore(todoApp);
-
 var _React = React;
 var Component = _React.Component;
 
@@ -117,6 +115,8 @@ var FilterLink = function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
+      var store = this.context.store;
+
       this.unsubscribe = store.subscribe(function () {
         return _this2.forceUpdate();
       });
@@ -130,6 +130,8 @@ var FilterLink = function (_Component) {
     key: 'render',
     value: function render() {
       var props = this.props;
+      var store = this.context.store;
+
       var state = store.getState();
 
       return React.createElement(
@@ -150,6 +152,10 @@ var FilterLink = function (_Component) {
 
   return FilterLink;
 }(Component);
+
+FilterLink.contextTypes = {
+  store: React.PropTypes.object
+};
 
 var Footer = function Footer() {
   return React.createElement(
@@ -210,7 +216,9 @@ var TodoList = function TodoList(_ref3) {
 };
 
 var nextTodoId = 0;
-var AddTodo = function AddTodo() {
+var AddTodo = function AddTodo(props, _ref4) {
+  var store = _ref4.store;
+
   var input = void 0;
 
   return React.createElement(
@@ -232,6 +240,9 @@ var AddTodo = function AddTodo() {
       'Add Todo'
     )
   );
+};
+AddTodo.contextTypes = {
+  store: React.PropTypes.object
 };
 
 var getVisibleTodos = function getVisibleTodos(todos, filter) {
@@ -263,6 +274,8 @@ var VisibleTodoList = function (_Component2) {
     value: function componentDidMount() {
       var _this4 = this;
 
+      var store = this.context.store;
+
       this.unsubscribe = store.subscribe(function () {
         return _this4.forceUpdate();
       });
@@ -276,6 +289,8 @@ var VisibleTodoList = function (_Component2) {
     key: 'render',
     value: function render() {
       var props = this.props;
+      var store = this.context.store;
+
       var state = store.getState();
 
       return React.createElement(TodoList, {
@@ -293,6 +308,40 @@ var VisibleTodoList = function (_Component2) {
   return VisibleTodoList;
 }(Component);
 
+VisibleTodoList.contextTypes = {
+  store: React.PropTypes.object
+};
+
+var Provider = function (_Component3) {
+  _inherits(Provider, _Component3);
+
+  function Provider() {
+    _classCallCheck(this, Provider);
+
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(Provider).apply(this, arguments));
+  }
+
+  _createClass(Provider, [{
+    key: 'getChildContext',
+    value: function getChildContext() {
+      return {
+        store: this.props.store
+      };
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return this.props.children;
+    }
+  }]);
+
+  return Provider;
+}(Component);
+
+Provider.childContextTypes = {
+  store: React.PropTypes.object
+};
+
 var TodoApp = function TodoApp() {
   return React.createElement(
     'div',
@@ -303,4 +352,8 @@ var TodoApp = function TodoApp() {
   );
 };
 
-ReactDOM.render(React.createElement(TodoApp, null), document.getElementById('root'));
+ReactDOM.render(React.createElement(
+  Provider,
+  { store: createStore(todoApp) },
+  React.createElement(TodoApp, null)
+), document.getElementById('root'));

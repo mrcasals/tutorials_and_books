@@ -46,7 +46,6 @@ const visibilityFilter = (
   }
 };
 
-const { createStore } = Redux;
 const { combineReducers } = Redux;
 const todoApp = combineReducers({
   todos,
@@ -248,21 +247,6 @@ VisibleTodoList.contextTypes = {
   store: React.PropTypes.object
 };
 
-class Provider extends Component {
-  getChildContext() {
-    return {
-      store: this.props.store
-    }
-  }
-
-  render() {
-    return this.props.children;
-  }
-}
-Provider.childContextTypes = {
-  store: React.PropTypes.object
-};
-
 const TodoApp = () => (
   <div>
     <AddTodo />
@@ -270,6 +254,9 @@ const TodoApp = () => (
     <Footer />
   </div>
 );
+
+const { Provider } = ReactRedux;
+const { createStore } = Redux;
 
 ReactDOM.render(
   <Provider store={createStore(todoApp)}>

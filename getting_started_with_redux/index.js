@@ -62,9 +62,7 @@ var visibilityFilter = function visibilityFilter() {
 };
 
 var _Redux = Redux;
-var createStore = _Redux.createStore;
-var _Redux2 = Redux;
-var combineReducers = _Redux2.combineReducers;
+var combineReducers = _Redux.combineReducers;
 
 var todoApp = combineReducers({
   todos: todos,
@@ -312,36 +310,6 @@ VisibleTodoList.contextTypes = {
   store: React.PropTypes.object
 };
 
-var Provider = function (_Component3) {
-  _inherits(Provider, _Component3);
-
-  function Provider() {
-    _classCallCheck(this, Provider);
-
-    return _possibleConstructorReturn(this, Object.getPrototypeOf(Provider).apply(this, arguments));
-  }
-
-  _createClass(Provider, [{
-    key: 'getChildContext',
-    value: function getChildContext() {
-      return {
-        store: this.props.store
-      };
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      return this.props.children;
-    }
-  }]);
-
-  return Provider;
-}(Component);
-
-Provider.childContextTypes = {
-  store: React.PropTypes.object
-};
-
 var TodoApp = function TodoApp() {
   return React.createElement(
     'div',
@@ -351,6 +319,12 @@ var TodoApp = function TodoApp() {
     React.createElement(Footer, null)
   );
 };
+
+var _ReactRedux = ReactRedux;
+var Provider = _ReactRedux.Provider;
+var _Redux2 = Redux;
+var createStore = _Redux2.createStore;
+
 
 ReactDOM.render(React.createElement(
   Provider,

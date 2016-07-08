@@ -915,3 +915,8 @@ Otherwise, the component will not receive it.
     VisibleTodoList.contextTypes = {
       store: React.PropTypes.object
     };
+
+## Todos: Use the Provider from react-redux
+Import the JS library in your HTML and use this:
+
+    const { Provider } = ReactRedux;

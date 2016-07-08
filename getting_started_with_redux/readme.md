@@ -759,3 +759,92 @@ This `Link` does not know anything about the behavior, it only renders the link
 depending on whether it is active or not. `FilterLink` will subscribe to the
 `store` and calculate the props and actions needed by the `Link` component to
 work properly.
+
+## Todos: Extract container components (VisibleTodoList, AddTodo)
+Following the work that we did with the `Footer` component, we will refactor
+the `TodoList` component. It is a presentational component, but we're setting
+its state from the top element of our view hierarchy. We don't want that, so we
+will create another container component that will connect the presentation view
+to the store:
+
+    class VisibleTodoList extends Component {
+      componentDidMount() {
+        this.unsubscribe = store.subscribe(() =>
+          this.forceUpdate()
+        )
+      }
+
+      componentWillUnmount() {
+        this.unsubscribe()
+      }
+
+      render() {
+        const props = this.props;
+        const state = store.getState();
+
+        return (
+          <TodoList
+            todos={
+              getVisibleTodos(
+                state.todos,
+                state.visibilityFilter
+              )
+            }
+            onTodoClick={id =>
+              store.dispatch({
+                type: 'TOGGLE_TODO',
+                id
+              })
+            }
+          />
+        )
+      }
+    }
+
+    <VisibleTodoList />
+
+In the last section we made `AddTodo` into a presentational component. Now we
+will backtrack on this, because there isn't a lot of presentation or behavior
+here, and it's easier to keep everything together in this case:
+
+    const AddTodo = () => {
+      let input;
+
+      return (
+        <div>
+          <input ref={node => {
+            input = node;
+          }} />
+          <button onClick={() => {
+              store.dispatch({
+                type: 'ADD_TODO',
+                id: nextTodoId++,
+                text: input.value
+              })
+            input.value = '';
+          }}>
+            Add Todo
+          </button>
+        </div>
+      );
+    };
+
+    <AddTodo />
+
+Thanks to that, we can remove all props from `TodoApp` because none of its
+elements need the store sent from their parent. Also, this enables us to just
+render the `TodoApp` component once, as it will not need to update itself (its
+children do, and they do it automatically now):
+
+    const TodoApp = () => (
+      <div>
+        <AddTodo />
+        <VisibleTodoList />
+        <Footer />
+      </div>
+    );
+
+    ReactDOM.render(
+      <TodoApp />,
+      document.getElementById('root')
+    );

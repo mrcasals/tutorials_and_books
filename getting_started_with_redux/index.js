@@ -53,6 +53,29 @@ var visibilityFilter = function visibilityFilter() {
   }
 };
 
+var nextTodoId = 0;
+var addTodo = function addTodo(text) {
+  return {
+    type: 'ADD_TODO',
+    id: nextTodoId++,
+    text: text
+  };
+};
+
+var setVisibilityFilter = function setVisibilityFilter(filter) {
+  return {
+    type: 'SET_VISIBILITY_FILTER',
+    filter: filter
+  };
+};
+
+var toggleTodo = function toggleTodo(id) {
+  return {
+    type: 'TOGGLE_TODO',
+    id: id
+  };
+};
+
 var _Redux = Redux;
 var combineReducers = _Redux.combineReducers;
 var _ReactRedux = ReactRedux;
@@ -101,10 +124,7 @@ var mapStateToLinkProps = function mapStateToLinkProps(state, ownProps) {
 var mapDispatchToLinkProps = function mapDispatchToLinkProps(dispatch, ownProps) {
   return {
     onClick: function onClick() {
-      dispatch({
-        type: 'SET_VISIBILITY_FILTER',
-        filter: ownProps.filter
-      });
+      dispatch(setVisibilityFilter(ownProps.filter));
     }
   };
 };
@@ -168,7 +188,6 @@ var TodoList = function TodoList(_ref3) {
   );
 };
 
-var nextTodoId = 0;
 var AddTodo = function AddTodo(_ref4) {
   var dispatch = _ref4.dispatch;
 
@@ -183,11 +202,7 @@ var AddTodo = function AddTodo(_ref4) {
     React.createElement(
       'button',
       { onClick: function onClick() {
-          dispatch({
-            type: 'ADD_TODO',
-            id: nextTodoId++,
-            text: input.value
-          });
+          dispatch(addTodo(input.value));
           input.value = '';
         } },
       'Add Todo'
@@ -219,10 +234,7 @@ var mapStateTodoListToProps = function mapStateTodoListToProps(state) {
 var mapDispatchTodoListToProps = function mapDispatchTodoListToProps(dispatch) {
   return {
     onTodoClick: function onTodoClick(id) {
-      dispatch({
-        type: 'TOGGLE_TODO',
-        id: id
-      });
+      dispatch(toggleTodo(id));
     }
   };
 };

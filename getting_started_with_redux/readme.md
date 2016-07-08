@@ -1002,3 +1002,68 @@ which need access to `props`:
       mapStateToLinkProps,
       mapDispatchToLinkProps,
     )(Link);
+
+## Todos: Extracting action generators
+Finally, the last refactor: we will add some **Action creators** that will take
+some params for the action and return the action that should be created. For
+example, our `AddTodo` component takes care of increasing the `nextTodoId`
+variable, but what if we want to generate this action from elsewhare? Then we'd
+need to make this variable global and that's not really good. Also, we won't
+put this into our reducer as this would make it **non-deterministic**. So this
+is our refactor:
+
+    // inside our `AddTodo`
+    <button onClick={() => {
+      dispatch(addTodo(input.value))
+      input.value = '';
+    }}>
+    let nextTodoId = 0;
+    const addTodo = (text) => {
+      return {
+        type: 'ADD_TODO',
+        id: nextTodoId++,
+        text
+      };
+    };
+
+    const setVisibilityFilter = (filter) => {
+      return {
+        type: 'SET_VISIBILITY_FILTER',
+        filter
+      };
+    };
+
+    .
+    . // Further down the file...
+    .
+    const mapDispatchToLinkProps = (
+      dispatch,
+      ownProps
+    ) => {
+      return {
+        onClick: () => {
+          dispatch(
+            setVisibilityFilter(ownProps.filter)
+          );
+        }
+      };
+    }
+
+    const toggleTodo = (id) => {
+      return {
+        type: 'TOGGLE_TODO',
+        id
+      };
+    };
+    .
+    . // Further down the file...
+    .
+    const mapDispatchToTodoListProps = (
+      dispatch
+    ) => {
+      return {
+        onTodoClick: (id) => {
+          dispatch(toggleTodo(id));
+        }
+      };
+    }

@@ -962,3 +962,19 @@ Now we can generate automatically the same `VisibleTodoList` just using the
     )(TodoList);
 
 It will automatically subscribe to our store.
+
+## Todos: Generate containers with `connect` from ReactRedux (AddTodo)
+Now we can do the same from the previous lesson, but applying it to the
+`AddTodo` component.
+
+    let AddTodo = ({ dispatch }) => {
+      ...
+      // we need to remove any reference to `store` and only leave the
+      // `dispatch` part
+    }
+    // we remove the `contextTypes` part, as we don't need it anymore
+    // `connect` will deal with it automatically
+    // we don't need to subscribe to the state, so we pass `null`
+    // we don't do anything with the dispatch, so we pass `null` too
+    // `connect(null, null) === connect()`
+    AddTodo = connect()(AddTodo);
